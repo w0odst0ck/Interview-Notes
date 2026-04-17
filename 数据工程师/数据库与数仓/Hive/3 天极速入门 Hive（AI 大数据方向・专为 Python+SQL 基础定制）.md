@@ -1,4 +1,6 @@
 
+---
+
 你有**SQL+Python**、AI 专业背景，**完全可以 3 天拿下 Hive 核心**，直接对接 AI 大数据（数仓清洗、特征工程、离线训练数据）。我给你做**最精简、最高效、直奔就业**的路线，每天 4-6 小时即可。
 
 ## 整体定位（先搞懂你学 Hive 用来干嘛）
@@ -33,32 +35,23 @@ Hive = **基于 Hadoop 的 SQL 数仓引擎**
 2. **环境（最快方式）**
     
     - 用 **Docker 一键起 Hive**（最省事）
-    
-    bash
-    
-    运行
-    
-    ```
+
+    ```bash
     # 直接复制跑（有 Docker 就行）
     docker run -d --name hive -p 10000:10000-p 9083:9083 apache/hive:3.1.3
     docker exec -it hive beeline -u jdbc:hive2://localhost:10000
     ```
     
 3. **库操作**
-    
 
-sql
-
-```
+```sql
 CREATE DATABASE ai_feature;
 USE ai_feature;
 ```
 
 4. **建表（AI 方向最常用：内部表 + 分区表）**
 
-sql
-
-```
+```sql
 CREATE TABLE user_behavior(
     user_id BIGINT,
     item_id BIGINT,
@@ -74,9 +67,7 @@ STORED AS TEXTFILE;
 
 5. **加载数据**
 
-sql
-
-```
+```sql
 LOAD DATA LOCAL INPATH '/tmp/data.csv' INTO TABLE user_behavior PARTITION(dt='2026-03-29');
 ```
 
@@ -106,9 +97,7 @@ LOAD DATA LOCAL INPATH '/tmp/data.csv' INTO TABLE user_behavior PARTITION(dt='20
 
 - 时间函数
 
-sql
-
-```
+```sql
 from_unixtime(ts, 'yyyy-MM-dd HH:mm:ss')
 date_format(dt, 'yyyy-MM-dd')
 datediff(end, start)
@@ -116,9 +105,7 @@ datediff(end, start)
 
 - 字符串 / 清洗
 
-sql
-
-```
+```sql
 split(col, ',')[0]
 get_json_object(json_col, '$.age')
 nvl(col, 0)  -- 空值填充（特征工程超常用）
@@ -127,18 +114,14 @@ coalesce(a,b,c)
 
 - 聚合
 
-sql
-
-```
+```sql
 count(distinct user_id)
 sum(score) over(partition by user_id order by ts rows between unbounded preceding and current row)
 ```
 
 3. **开窗函数（面试 + 特征工程必考）**
 
-sql
-
-```
+```sql
 ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY ts DESC) AS rn
 ```
 
@@ -175,9 +158,7 @@ ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY ts DESC) AS rn
 
 ### 2. 分桶（简单了解即可）
 
-sql
-
-```
+```sql
 CLUSTERED BY (user_id) INTO 10 BUCKETS
 ```
 
@@ -191,9 +172,7 @@ CLUSTERED BY (user_id) INTO 10 BUCKETS
 
 方式 1：导出 HDFS 再拉到本地
 
-sql
-
-```
+```sql
 INSERT OVERWRITE DIRECTORY '/tmp/feature'
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 SELECT user_id, count(*) as click_cnt, max(ts)
@@ -206,11 +185,7 @@ GROUP BY user_id;
 
 用 **PyHive** 直接 Python 连 Hive 拿 DataFrame
 
-python
-
-运行
-
-```
+```python
 from pyhive import hive
 import pandas as pd
 
@@ -235,3 +210,4 @@ df = pd.read_sql("""
 - 文档：Apache Hive 官方快速入门（10 分钟）
 - 视频：B 站「Hive 3 小时入门」（只看前 1.5 小时）
 - 命令：我上面给的所有 SQL 直接背熟
+
